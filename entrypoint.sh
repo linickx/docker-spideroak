@@ -26,5 +26,23 @@ if [ -f "/spideroak/.config/SpiderOakONE/.docker.quit" ]; then
     exit 0
 fi
 
+# Container ready notification
+notify_ready() {
+    # If NOTIFY_SOCKET is unset or empty, do nothing
+    [[ -z "$NOTIFY_SOCKET" ]] && return 0
+
+    local sock_path="$NOTIFY_SOCKET"
+
+    # Handle abstract socket path (leading @ converted to null byte)
+    if [[ "$sock_path" == @* ]]; then
+        sock_path="\x00${sock_path#@}"
+    fi
+
+    # Send the payload via UDP datagram to the UNIX socket
+    printf "READY=1" | nc -u -U "$sock_path"
+}
+
+notify_ready
+
 # Now run our entryscript
 su spideroak -c /spideroak.sh
