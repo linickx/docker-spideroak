@@ -2,11 +2,12 @@ FROM docker.io/library/debian:trixie-slim
 LABEL maintainer="Nick [linickx.com]"
 
 # Install Dependencies
-RUN apt-get update && apt-get -y install jq procps
+RUN apt-get update && apt-get -y install jq procps gpg
 
 # Update Image with SpiderOakONE
 RUN echo 'deb [signed-by=/etc/apt/keyrings/spideroak.gpg] http://apt.spideroak.com/ubuntu/ release restricted' | tee /etc/apt/sources.list.d/spideroakone.list
-COPY spideroak.gpg /etc/apt/keyrings/spideroak.gpg
+COPY spideroak-deb-2016.asc /spideroak-deb-2016.asc
+RUN gpg -o /etc/apt/keyrings/spideroak.gpg --dearmor spideroak-deb-2016.asc
 RUN apt-get update && apt-get -o Dpkg::Options::="--force-confold" -y install spideroakone
 
 # Custom boot scripts...
